@@ -19,6 +19,8 @@ limitations under the License.
 package rabbitmq
 
 import (
+	"strings"
+
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
 )
@@ -70,23 +72,17 @@ func (c *client) getVhost(name string) (result, error) {
 	return vhost[0], nil
 }
 
-// getVhostMetrics returns a slice of plugin.PluginMetricType that is
+// getVhostMetrics returns a slice of plugin.MetricType that is
 // created from the available metrics in the vhostMetrics map.
-func getVhostMetrics() []plugin.PluginMetricType {
-	var mts []plugin.PluginMetricType
-	ns := []string{"intel", "rabbitmq", "vhosts", "*"}
+func getVhostMetrics() []plugin.MetricType {
+	var mts []plugin.MetricType
+	nsPrefix := []string{"intel", "rabbitmq", "vhosts"}
 	for k := range vhostMetrics {
-		mts = append(mts, plugin.PluginMetricType{
-			Namespace_: generateNamespace(ns, k),
-			Labels_:    vhostLabels(),
+		mts = append(mts, plugin.MetricType{
+			Namespace_: core.NewNamespace(nsPrefix...).
+				AddDynamicElement("name", "Virtual host name").
+				AddStaticElements(strings.Split(k, "/")...),
 		})
 	}
 	return mts
-}
-
-func vhostLabels() []core.Label {
-	return []core.Label{{
-		Index: 3,
-		Name:  "vhost",
-	}}
 }
