@@ -19,6 +19,8 @@ limitations under the License.
 package rabbitmq
 
 import (
+	"strings"
+
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
 )
@@ -67,28 +69,18 @@ func (c *client) getExchangesByVhost(vhost string) ([]result, error) {
 	return exchanges, nil
 }
 
-// getExchangeMetrics returns a slice of plugin.PluginMetricType created from
+// getExchangeMetrics returns a slice of plugin.MetricType created from
 // the map of available metrics for an exchange.
-func getExchangeMetrics() []plugin.PluginMetricType {
-	var mts []plugin.PluginMetricType
-	ns := []string{"intel", "rabbitmq", "exchanges", "*", "*"}
+func getExchangeMetrics() []plugin.MetricType {
+	var mts []plugin.MetricType
+	nsPrefix := []string{"intel", "rabbitmq", "exchanges"}
 	for k := range exchangeMetrics {
-		mts = append(mts, plugin.PluginMetricType{
-			Namespace_: generateNamespace(ns, k),
-			Labels_:    exchangeLabels(),
+		mts = append(mts, plugin.MetricType{
+			Namespace_: core.NewNamespace(nsPrefix...).
+				AddDynamicElement("vhost", "Virtual host name").
+				AddDynamicElement("name", "Exchange name").
+				AddStaticElements(strings.Split(k, "/")...),
 		})
 	}
 	return mts
-}
-
-func exchangeLabels() []core.Label {
-	return []core.Label{
-		{
-			Index: 3,
-			Name:  "vhost",
-		},
-		{
-			Index: 4,
-			Name:  "exchange",
-		}}
 }

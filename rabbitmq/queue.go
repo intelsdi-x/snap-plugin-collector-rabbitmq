@@ -19,6 +19,8 @@ limitations under the License.
 package rabbitmq
 
 import (
+	"strings"
+
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
 )
@@ -84,28 +86,18 @@ func (c *client) getQueuesByVhost(vhost string) ([]result, error) {
 	return queues, nil
 }
 
-// getQueueMetrics returns a slice of plugin.PluginMetricTypes made from the
+// getQueueMetrics returns a slice of plugin.MetricTypes made from the
 // map of available metrics for a queue.
-func getQueueMetrics() []plugin.PluginMetricType {
-	var mts []plugin.PluginMetricType
-	ns := []string{"intel", "rabbitmq", "queues", "*", "*"}
+func getQueueMetrics() []plugin.MetricType {
+	var mts []plugin.MetricType
+	nsPrefix := []string{"intel", "rabbitmq", "queues"}
 	for k := range queueMetrics {
-		mts = append(mts, plugin.PluginMetricType{
-			Namespace_: generateNamespace(ns, k),
-			Labels_:    queueLabels(),
+		mts = append(mts, plugin.MetricType{
+			Namespace_: core.NewNamespace(nsPrefix...).
+				AddDynamicElement("vhost", "Virtual host name").
+				AddDynamicElement("name", "Queue name").
+				AddStaticElements(strings.Split(k, "/")...),
 		})
 	}
 	return mts
-}
-
-func queueLabels() []core.Label {
-	return []core.Label{
-		{
-			Index: 3,
-			Name:  "vhost",
-		},
-		{
-			Index: 4,
-			Name:  "queue",
-		}}
 }

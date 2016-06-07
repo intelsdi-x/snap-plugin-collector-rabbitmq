@@ -25,12 +25,13 @@ import (
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
 const (
 	name       = "rabbitmq-collector"
-	version    = 1
+	version    = 2
 	pluginType = plugin.CollectorPluginType
 )
 
@@ -72,8 +73,8 @@ func (r *rabbitMQCollector) GetConfigPolicy() (*cpolicy.ConfigPolicy, error) {
 // GetMetricTypes returns the metrics available to be collected from this plugin. The available metrics
 // are broken down between nodes, exchanges, queues, and vhosts. For a full list of available
 // metrics, please see the README or the other source files pertaining to those topics.
-func (r *rabbitMQCollector) GetMetricTypes(_ plugin.PluginConfigType) ([]plugin.PluginMetricType, error) {
-	mts := []plugin.PluginMetricType{}
+func (r *rabbitMQCollector) GetMetricTypes(_ plugin.ConfigType) ([]plugin.MetricType, error) {
+	mts := []plugin.MetricType{}
 
 	mts = append(mts, getNodeMetrics()...)
 	mts = append(mts, getExchangeMetrics()...)
@@ -85,7 +86,7 @@ func (r *rabbitMQCollector) GetMetricTypes(_ plugin.PluginConfigType) ([]plugin.
 
 // CollectMetrics takes a list of metrics from the snap daemon, collects the metrics from the required
 // hosts and returns the collected metrics to the snap daemon.
-func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plugin.PluginMetricType, error) {
+func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.MetricType, error) {
 	// Cache nodes, vhosts to reduce API calls on a collection
 	// Exchanges and queues are multi level by vhost. Map may better serve them.
 	var nodes []string
@@ -96,7 +97,7 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 	var exchResCache map[string]result
 	var queueResCache map[string]result
 	var vhostResCache map[string]result
-	var metrics []plugin.PluginMetricType
+	var metrics []plugin.MetricType
 
 	timestamp := time.Now()
 	for _, mt := range mts {
@@ -106,7 +107,13 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 				return nil, err
 			}
 		}
-		ns := mt.Namespace()
+		tags := mt.Tags()
+		if tags == nil {
+			tags = map[string]string{}
+		}
+		tags["hostname"] = r.client.source
+
+		ns := mt.Namespace().Strings()
 		metType := ns[2]
 		switch metType {
 		default:
@@ -143,12 +150,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 					if v, err := walkResult(nodeResCache[n], metric); err == nil {
 						ns_ := copyNamespace(ns)
 						ns_[3] = n
-						metrics = append(metrics, plugin.PluginMetricType{
-							Namespace_: ns_,
-							Source_:    r.client.source,
+						metrics = append(metrics, plugin.MetricType{
+							Namespace_: core.NewNamespace(ns_...),
+							Tags_:      tags,
 							Data_:      typeValue(nodeMetrics[metStr], v),
 							Timestamp_: timestamp,
-							Labels_:    nodeLabels(), // Labels are not passed back with metric
 						})
 					}
 				}
@@ -166,12 +172,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 				if err != nil {
 					return nil, err
 				}
-				metrics = append(metrics, plugin.PluginMetricType{
-					Namespace_: ns,
-					Source_:    r.client.source,
+				metrics = append(metrics, plugin.MetricType{
+					Namespace_: core.NewNamespace(ns...),
+					Tags_:      tags,
 					Data_:      typeValue(nodeMetrics[metStr], v),
 					Timestamp_: timestamp,
-					Labels_:    nodeLabels(),
 				})
 
 			}
@@ -218,12 +223,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 								ns_ := copyNamespace(ns)
 								ns_[3] = vh
 								ns_[4] = exch["name"].(string)
-								metrics = append(metrics, plugin.PluginMetricType{
-									Namespace_: ns_,
-									Source_:    r.client.source,
+								metrics = append(metrics, plugin.MetricType{
+									Namespace_: core.NewNamespace(ns_...),
+									Tags_:      tags,
 									Data_:      typeValue(exchangeMetrics[metStr], v),
 									Timestamp_: timestamp,
-									Labels_:    exchangeLabels(),
 								})
 							}
 						}
@@ -256,12 +260,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 						if v, err := walkResult(exchResCache[key], metric); err == nil {
 							ns_ := copyNamespace(ns)
 							ns_[4] = exch["name"].(string)
-							metrics = append(metrics, plugin.PluginMetricType{
-								Namespace_: ns_,
-								Source_:    r.client.source,
+							metrics = append(metrics, plugin.MetricType{
+								Namespace_: core.NewNamespace(ns_...),
+								Tags_:      tags,
 								Data_:      typeValue(exchangeMetrics[metStr], v),
 								Timestamp_: timestamp,
-								Labels_:    exchangeLabels(),
 							})
 						}
 					}
@@ -280,12 +283,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 					if err != nil {
 						return nil, err
 					}
-					metrics = append(metrics, plugin.PluginMetricType{
-						Namespace_: ns,
-						Source_:    r.client.source,
+					metrics = append(metrics, plugin.MetricType{
+						Namespace_: core.NewNamespace(ns...),
+						Tags_:      tags,
 						Data_:      typeValue(exchangeMetrics[metStr], v),
 						Timestamp_: timestamp,
-						Labels_:    exchangeLabels(),
 					})
 				}
 			}
@@ -327,12 +329,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 								ns_ := copyNamespace(ns)
 								ns_[3] = vh
 								ns_[4] = q["name"].(string)
-								metrics = append(metrics, plugin.PluginMetricType{
-									Namespace_: ns_,
-									Source_:    r.client.source,
+								metrics = append(metrics, plugin.MetricType{
+									Namespace_: core.NewNamespace(ns_...),
+									Tags_:      tags,
 									Data_:      typeValue(queueMetrics[metStr], v),
 									Timestamp_: timestamp,
-									Labels_:    queueLabels(),
 								})
 							}
 						}
@@ -362,12 +363,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 						if v, err := walkResult(queueResCache[key], metric); err == nil {
 							ns_ := copyNamespace(ns)
 							ns_[4] = q["name"].(string)
-							metrics = append(metrics, plugin.PluginMetricType{
-								Namespace_: ns_,
-								Source_:    r.client.source,
+							metrics = append(metrics, plugin.MetricType{
+								Namespace_: core.NewNamespace(ns_...),
+								Tags_:      tags,
 								Data_:      typeValue(queueMetrics[metStr], v),
 								Timestamp_: timestamp,
-								Labels_:    queueLabels(),
 							})
 						}
 					}
@@ -386,12 +386,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 					if err != nil {
 						return nil, err
 					}
-					metrics = append(metrics, plugin.PluginMetricType{
-						Namespace_: ns,
-						Source_:    r.client.source,
+					metrics = append(metrics, plugin.MetricType{
+						Namespace_: core.NewNamespace(ns...),
+						Tags_:      tags,
 						Data_:      typeValue(queueMetrics[metStr], v),
 						Timestamp_: timestamp,
-						Labels_:    queueLabels(),
 					})
 				}
 			}
@@ -427,12 +426,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 					if v, err := walkResult(vhostResCache[vh], metric); err == nil {
 						ns_ := copyNamespace(ns)
 						ns_[3] = vh
-						metrics = append(metrics, plugin.PluginMetricType{
-							Namespace_: ns_,
-							Source_:    r.client.source,
+						metrics = append(metrics, plugin.MetricType{
+							Namespace_: core.NewNamespace(ns_...),
+							Tags_:      tags,
 							Data_:      typeValue(vhostMetrics[metStr], v),
 							Timestamp_: timestamp,
-							Labels_:    vhostLabels(),
 						})
 					}
 				}
@@ -450,12 +448,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.PluginMetricType) ([]plu
 				if err != nil {
 					return nil, err
 				}
-				metrics = append(metrics, plugin.PluginMetricType{
-					Namespace_: ns,
-					Source_:    r.client.source,
+				metrics = append(metrics, plugin.MetricType{
+					Namespace_: core.NewNamespace(ns...),
+					Tags_:      tags,
 					Data_:      typeValue(vhostMetrics[metStr], v),
 					Timestamp_: timestamp,
-					Labels_:    vhostLabels(),
 				})
 
 			}

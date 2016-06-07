@@ -20,6 +20,7 @@ package rabbitmq
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/core"
@@ -111,23 +112,17 @@ func (c *client) getNode(name string) (result, error) {
 	return node[0], nil
 }
 
-// getNodeMetrics returns a slice of available plugin.PluginMetricTypes created
+// getNodeMetrics returns a slice of available plugin.MetricTypes created
 // from the nodeMetrics map
-func getNodeMetrics() []plugin.PluginMetricType {
-	var mts []plugin.PluginMetricType
-	ns := []string{"intel", "rabbitmq", "nodes", "*"}
+func getNodeMetrics() []plugin.MetricType {
+	var mts []plugin.MetricType
+	nsPrefix := []string{"intel", "rabbitmq", "nodes"}
 	for k := range nodeMetrics {
-		mts = append(mts, plugin.PluginMetricType{
-			Namespace_: generateNamespace(ns, k),
-			Labels_:    nodeLabels(),
+		mts = append(mts, plugin.MetricType{
+			Namespace_: core.NewNamespace(nsPrefix...).
+				AddDynamicElement("node_name", "Name of the node").
+				AddStaticElements(strings.Split(k, "/")...),
 		})
 	}
 	return mts
-}
-
-func nodeLabels() []core.Label {
-	return []core.Label{{
-		Index: 3,
-		Name:  "node",
-	}}
 }

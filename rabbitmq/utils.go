@@ -74,12 +74,6 @@ func typeValue(valueType string, value interface{}) interface{} {
 	}
 }
 
-// generateNamespace is used to append a metric a namespace and return
-// the entire namespace to be returned with a metric.
-func generateNamespace(ns []string, metric string) []string {
-	return append(ns, strings.Split(metric, "/")...)
-}
-
 // splitHost takes a url.Host string and splits the string into the host
 // and port, returning just the host portion
 func splitHost(host string) string {

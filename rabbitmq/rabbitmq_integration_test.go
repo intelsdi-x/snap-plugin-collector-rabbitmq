@@ -26,6 +26,7 @@ import (
 	"testing"
 
 	"github.com/intelsdi-x/snap/control/plugin"
+	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/ctypes"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/streadway/amqp"
@@ -72,63 +73,63 @@ func TestRabbitMQCollectMetrics(t *testing.T) {
 	mts := []plugin.PluginMetricType{
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "nodes", "rabbit@localhost", "disk_free"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "nodes", "rabbit@localhost", "disk_free"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "nodes", "rabbit@localhost", "memory", "total"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "nodes", "rabbit@localhost", "memory", "total"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "nodes", "*", "sockets_used"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "nodes", "*", "sockets_used"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "nodes", "*", "memory", "mnesia"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "nodes", "*", "memory", "mnesia"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "vhosts", "%2f", "message_stats", "deliver_get"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "vhosts", "%2f", "message_stats", "deliver_get"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "vhosts", "*", "messages"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "vhosts", "*", "messages"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "vhosts", "*", "messages_details", "rate"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "vhosts", "*", "messages_details", "rate"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "exchanges", "*", "*", "message_stats", "publish_in_details", "rate"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "exchanges", "*", "*", "message_stats", "publish_in_details", "rate"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "exchanges", "%2f", "snap", "message_stats", "publish_in"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "exchanges", "%2f", "snap", "message_stats", "publish_in"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "exchanges", "%2f", "*", "message_stats", "publish_out"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "exchanges", "%2f", "*", "message_stats", "publish_out"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "exchanges", "*", "*", "message_stats", "confirm"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "exchanges", "*", "*", "message_stats", "confirm"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "queues", "%2f", "snapq", "messages_unacknowledged"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "queues", "%2f", "snapq", "messages_unacknowledged"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "queues", "%2f", "snapq", "messages_details", "rate"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "queues", "%2f", "snapq", "messages_details", "rate"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "queues", "%2f", "*", "message_stats", "publish"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "queues", "%2f", "*", "message_stats", "publish"),
 		},
 		plugin.PluginMetricType{
 			Config_:    cfg.ConfigDataNode,
-			Namespace_: []string{"intel", "rabbitmq", "queues", "*", "*", "messages"},
+			Namespace_: core.NewNamespace("intel", "rabbitmq", "queues", "*", "*", "messages"),
 		},
 	}
 	metrics, err := r.CollectMetrics(mts)
