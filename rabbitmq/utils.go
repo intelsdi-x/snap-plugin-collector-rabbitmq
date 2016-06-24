@@ -21,6 +21,8 @@ package rabbitmq
 import (
 	"fmt"
 	"strings"
+
+	"github.com/intelsdi-x/snap/core"
 )
 
 // joinUrl will take a url and an array of endpoints and join
@@ -82,8 +84,8 @@ func splitHost(host string) string {
 
 // copyNamespace copies the namespace provided to a new slice
 // and returns it
-func copyNamespace(src []string) []string {
-	dst := make([]string, len(src))
+func copyNamespace(src core.Namespace) core.Namespace {
+	dst := make(core.Namespace, len(src))
 	copy(dst, src)
 	return dst
 }
