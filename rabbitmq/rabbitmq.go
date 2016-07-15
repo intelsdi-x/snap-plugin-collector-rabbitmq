@@ -25,13 +25,12 @@ import (
 
 	"github.com/intelsdi-x/snap/control/plugin"
 	"github.com/intelsdi-x/snap/control/plugin/cpolicy"
-	"github.com/intelsdi-x/snap/core"
 	"github.com/intelsdi-x/snap/core/ctypes"
 )
 
 const (
 	name       = "rabbitmq-collector"
-	version    = 2
+	version    = 3
 	pluginType = plugin.CollectorPluginType
 )
 
@@ -148,10 +147,10 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 						}
 					}
 					if v, err := walkResult(nodeResCache[n], metric); err == nil {
-						ns_ := copyNamespace(ns)
-						ns_[3] = n
+						ns_ := copyNamespace(mt.Namespace())
+						ns_[3].Value = n
 						metrics = append(metrics, plugin.MetricType{
-							Namespace_: core.NewNamespace(ns_...),
+							Namespace_: ns_,
 							Tags_:      tags,
 							Data_:      typeValue(nodeMetrics[metStr], v),
 							Timestamp_: timestamp,
@@ -172,8 +171,9 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 				if err != nil {
 					return nil, err
 				}
+				ns_ := copyNamespace(mt.Namespace())
 				metrics = append(metrics, plugin.MetricType{
-					Namespace_: core.NewNamespace(ns...),
+					Namespace_: ns_,
 					Tags_:      tags,
 					Data_:      typeValue(nodeMetrics[metStr], v),
 					Timestamp_: timestamp,
@@ -220,11 +220,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 								}
 							}
 							if v, err := walkResult(exchResCache[key], metric); err == nil {
-								ns_ := copyNamespace(ns)
-								ns_[3] = vh
-								ns_[4] = exch["name"].(string)
+								ns_ := copyNamespace(mt.Namespace())
+								ns_[3].Value = vh
+								ns_[4].Value = exch["name"].(string)
 								metrics = append(metrics, plugin.MetricType{
-									Namespace_: core.NewNamespace(ns_...),
+									Namespace_: ns_,
 									Tags_:      tags,
 									Data_:      typeValue(exchangeMetrics[metStr], v),
 									Timestamp_: timestamp,
@@ -258,10 +258,10 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 							}
 						}
 						if v, err := walkResult(exchResCache[key], metric); err == nil {
-							ns_ := copyNamespace(ns)
-							ns_[4] = exch["name"].(string)
+							ns_ := copyNamespace(mt.Namespace())
+							ns_[4].Value = exch["name"].(string)
 							metrics = append(metrics, plugin.MetricType{
-								Namespace_: core.NewNamespace(ns_...),
+								Namespace_: ns_,
 								Tags_:      tags,
 								Data_:      typeValue(exchangeMetrics[metStr], v),
 								Timestamp_: timestamp,
@@ -283,8 +283,9 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 					if err != nil {
 						return nil, err
 					}
+					ns_ := copyNamespace(mt.Namespace())
 					metrics = append(metrics, plugin.MetricType{
-						Namespace_: core.NewNamespace(ns...),
+						Namespace_: ns_,
 						Tags_:      tags,
 						Data_:      typeValue(exchangeMetrics[metStr], v),
 						Timestamp_: timestamp,
@@ -326,11 +327,11 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 								}
 							}
 							if v, err := walkResult(queueResCache[key], metric); err == nil {
-								ns_ := copyNamespace(ns)
-								ns_[3] = vh
-								ns_[4] = q["name"].(string)
+								ns_ := copyNamespace(mt.Namespace())
+								ns_[3].Value = vh
+								ns_[4].Value = q["name"].(string)
 								metrics = append(metrics, plugin.MetricType{
-									Namespace_: core.NewNamespace(ns_...),
+									Namespace_: ns_,
 									Tags_:      tags,
 									Data_:      typeValue(queueMetrics[metStr], v),
 									Timestamp_: timestamp,
@@ -361,10 +362,10 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 							}
 						}
 						if v, err := walkResult(queueResCache[key], metric); err == nil {
-							ns_ := copyNamespace(ns)
-							ns_[4] = q["name"].(string)
+							ns_ := copyNamespace(mt.Namespace())
+							ns_[4].Value = q["name"].(string)
 							metrics = append(metrics, plugin.MetricType{
-								Namespace_: core.NewNamespace(ns_...),
+								Namespace_: ns_,
 								Tags_:      tags,
 								Data_:      typeValue(queueMetrics[metStr], v),
 								Timestamp_: timestamp,
@@ -386,8 +387,9 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 					if err != nil {
 						return nil, err
 					}
+					ns_ := copyNamespace(mt.Namespace())
 					metrics = append(metrics, plugin.MetricType{
-						Namespace_: core.NewNamespace(ns...),
+						Namespace_: ns_,
 						Tags_:      tags,
 						Data_:      typeValue(queueMetrics[metStr], v),
 						Timestamp_: timestamp,
@@ -424,10 +426,10 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 						}
 					}
 					if v, err := walkResult(vhostResCache[vh], metric); err == nil {
-						ns_ := copyNamespace(ns)
-						ns_[3] = vh
+						ns_ := copyNamespace(mt.Namespace())
+						ns_[3].Value = vh
 						metrics = append(metrics, plugin.MetricType{
-							Namespace_: core.NewNamespace(ns_...),
+							Namespace_: ns_,
 							Tags_:      tags,
 							Data_:      typeValue(vhostMetrics[metStr], v),
 							Timestamp_: timestamp,
@@ -448,8 +450,9 @@ func (r *rabbitMQCollector) CollectMetrics(mts []plugin.MetricType) ([]plugin.Me
 				if err != nil {
 					return nil, err
 				}
+				ns_ := copyNamespace(mt.Namespace())
 				metrics = append(metrics, plugin.MetricType{
-					Namespace_: core.NewNamespace(ns...),
+					Namespace_: ns_,
 					Tags_:      tags,
 					Data_:      typeValue(vhostMetrics[metStr], v),
 					Timestamp_: timestamp,
