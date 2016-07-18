@@ -81,5 +81,6 @@ if [[ $TEST_SUITE == "unit" ]]; then
 	# fi
 elif [[ $TEST_SUITE == "integration" ]]; then
 	cd $SNAP_PLUGIN_SOURCE
+	go get github.com/streadway/amqp
 	go test -v --tags=integration ./...
 fi
