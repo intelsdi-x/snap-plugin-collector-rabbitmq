@@ -27,6 +27,31 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+// -------------------- init ---------------------------
+// init connects to a local RabbitMQ server for testing and
+// creates a 'snap' exchange and 'snapq' queue for test purposes.
+// With the way the RabbitMQ API works, some metrics are not available
+// until a queue or exchange exist. For certain tests in this
+// file to succeed, we must first create an exchange and queue.
+
+func initRMQServer() {
+	con, err := NewConsumer(
+		"localhost:5672",
+		"snap",
+		"fanout",
+		"snapq",
+		"metrics",
+		"conTag",
+	)
+	if err != nil {
+		panic(err)
+	}
+	if err := con.Shutdown(); err != nil {
+		panic(err)
+	}
+}
+
+// ---------------------- Integration Tests -----------------------------
 func TestAPIConnection(t *testing.T) {
 	c := newClient("http://localhost:15672", "guest", "guest")
 	Convey("Testing API nodes endpoint", t, func() {
@@ -92,6 +117,7 @@ func TestNodesAPI(t *testing.T) {
 }
 
 func TestQueuesAPI(t *testing.T) {
+	initRMQServer()
 	c := newClient("http://localhost:15672", "guest", "guest")
 	queues, e := c.getQueues()
 	Convey("Get all queues from RabbitMQ cluster", t, func() {
@@ -119,6 +145,7 @@ func TestQueuesAPI(t *testing.T) {
 }
 
 func TestExchangesAPI(t *testing.T) {
+	initRMQServer()
 	c := newClient("http://localhost:15672", "guest", "guest")
 	exchanges, e := c.getExchanges()
 	Convey("Get all exchanges from RabbitMQ cluster", t, func() {
