@@ -1,0 +1,20 @@
+.travis.yml:
+  sudo: true
+  services:
+    - rabbitmq
+  env:
+    global:
+      - ORG_PATH=/home/travis/gopath/src/github.com/intelsdi-x
+      - SNAP_PLUGIN_SOURCE=/home/travis/gopath/src/github.com/${TRAVIS_REPO_SLUG}
+    matrix:
+      - TEST_TYPE=small
+      - TEST_TYPE=medium
+  deploy:
+    access_key_id: AKIAINMB43VSSPFZISAA
+    secret_access_key:
+      secure: dh9P/QxjBMvQzjWEprFZNmaXVkMPuyZdxG1OsObS3meRk7IFNb72yefc+o1eNM4tmA2kCFQPDT/xiCOBj9XqigQHziwGVfexYTKXZy5ByrP1PYDRvhhj0doPFn34AHW1lLYMIG61I+GJRy788sa5I1Zep4BAhZ37NuxuUuzL8XLI9p/44oqGhox59K/7Zk219prrpZgVZo6Yxomje+Z7Vn6NE6eyNH7eOpIr4oGsxN4l6kRUuLlf3cFX+PV23lJxslBX+DfD9HKDo8PvCN1WUrdWg9YJPMT/YDNYxbpu/WltKRpwrVoVoRPeQwgke+Ze7uKd2MMOBuboSMXuwUuEzXjWWq8LuhWLWD1P0sBh6yL32krXsRDEG/WM0ECgvnKcR6eXv2dZK5luryyaJxl+BSSQl68ysYzUAf8tfn+uuX+l02bCQReP3f7mZdZAIH/7fVG/Ba/IyJrkgJrDVtCWZeBgmYz6Zp43ug8T++0WQ49GbR5i2IGkH2ViAYBO4SKGFbLzwYi8fJsGM1TrsrYJRT1jcfvs6Oo5pfh2/29FCC5EGo9suFZ+BPS85Znxqxa16h1B6dLAG34nEWQUvO5K078aUtciUzu0RS409UdtzMczRzRD9z8AVYOxcldDBXIEl3ZGDDGpdDSvUPhvvXqwOSz6cPaYH3JD+PiV5jCYTLM=
+    api_key:
+      secure: THWsifPMW8C8uxAcCUCN6TYqmTJzco//BM08rngao7AU0iyftqZkqd2xSKo6G3nDZ++PLKwpLfh0EE8zSnVxN8ghA0RIcYfC+KJQPDb6uEnB7Woe/izoFoXEh2c7ambZI8lOkM4T+0vaiqSE4bigWaXlifPqbBE2J7Ezz0TGPxm+EykCgWin7csCNWRBJAAam0pDy+9rUUpLGm7YVDjUhh98owE8Vw8zztSdHBRmFSxQ8G5AvlBHwfrFgjT+UZOlWEKmCPeHbcIlHzErBn3dZGVviCNmHts4ESL3VezvjsYi4dw886YFM3JAP+qgQyrDSznns+UjtVQFaB4s4Tsn2WjM8qINg2kDCbmWxiDMwweZMmgSyR5s58GzfIXhMt6ljq8hMoTl2TKCAT67E8F3hByj7vD+Ct5Wps5u2/ac8It4rhfPoLLruJSw3Q+Y5kEZCpFOwfkaVijWpM5CBzaTuUeC7Y6apPd3fgFd0XYFU48QVXm7IoQUbvtviZ7MrUeg8RBv3NduGJ+fUWBTUDQn9OUzy7xfDbMPxfTKG01qcM5pUykvZCUZl6FGQHE44pDuJqjxeHFVMZHBuN3k5pQf+166mhk3mZfPW0PI/HOo6xk8/n7degD7XUaAtpFJHdap06UQ4KTUgy59tjKNkQ3Iomra0uYKsDNVz2vpizVHrkM=
+scripts/deps.sh:
+  packages:
+    - github.com/streadway/amqp
