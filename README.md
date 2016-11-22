@@ -32,7 +32,7 @@ All operating systems currently supported by snap:
 
 ### Installation
 #### Download the rabbitmq-collector plugin binary
-You can get the pre-built binaries for your OS and architecture at snap's [GitHub Releases](https://github.com/intelsdi-x/snap/releases) page.
+You can get the pre-built binaries for your OS and architecture at plugins's [GitHub Releases](https://github.com/intelsdi-x/snap-plugin-collector-rabbitmq/releases) page.
 
 #### To build the plugin binary
 Clone repo into `$GOPATH/src/github.com/intelsdi-x/`:
@@ -48,7 +48,7 @@ $ cd $GOPATH/src/intelsdi-x/snap-plugin-collector-rabbitmq
 $ make
 ```
 
-This builds the plugin in `build/rootfs/`
+This builds the plugin in `./build/`
 
 
 ### Configuration and Usage
